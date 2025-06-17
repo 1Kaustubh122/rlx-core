@@ -70,4 +70,19 @@ class TrajectoryBuffer:
         self._flatten_for_update()
         
     def _flatten_for_update(self):
+        self.obs_flat = self.obs_buf[:self.ptr].reshape(-1, self.obs_buf.size(-1))
+        self.act_flat = self.act_buf[:self.ptr].reshape(-1, self.obs_buf.size(-1))
+        self.logp_flat = self.logp_buf[:self.ptr].reshape(-1, self.obs_buf.size(-1))
+        self.adv_flat = self.adv_buf[:self.ptr].reshape(-1, self.obs_buf.size(-1))
+        self.ret_flat = self.ret_buf[:self.ptr].reshape(-1, self.obs_buf.size(-1))
+        self.val_flat = self.val_buf[:self.ptr].reshape(-1, self.obs_buf.size(-1))
         
+    def get(self):
+        adv_mean = self.adv_flat.mean()
+        adv_std = self.adv_flat.std() + 1e-8
+        adv_norm = (self.adv_flat - adv_mean) / adv_std
+        
+        return self.obs_flat, self.act_flat, self.logp_flat, adv_norm, self.ret_flat
+    
+    def reset(self):
+        self.ptr = 0
