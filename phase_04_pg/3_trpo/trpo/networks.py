@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 
 class MLP(nn.Module):
-    def __init__(self, input_dim, output_dim, hidden_sizes=(128, 128), activation=nn.Tanh):
+    def __init__(self, input_dim, output_dim, hidden_sizes=(256, 256), activation=nn.Tanh):
         super().__init__()
         layers = []
         dims = [input_dim] + list(hidden_sizes)
@@ -23,10 +23,10 @@ class MLP(nn.Module):
     
 
 class GaussianPolicy(nn.Module):
-    def __init__(self, obs_dim, action_dim, hidden_sizes=(128, 128)):
+    def __init__(self, obs_dim, action_dim, hidden_sizes=(256, 256)):
         super().__init__()
         self.mlp = MLP(obs_dim, action_dim, hidden_sizes)
-        self.log_std = nn.Parameter(torch.zeros(action_dim))
+        self.log_std = nn.Parameter(torch.zeros(action_dim) - 0.5)
 
     def forward(self, obs):
         mean = self.mlp(obs)
@@ -57,7 +57,7 @@ class GaussianPolicy(nn.Module):
         return kl
     
 class ValueNet(nn.Module):
-    def __init__(self, obs_dim, hidden_sizes=(128, 128)):
+    def __init__(self, obs_dim, hidden_sizes=(256, 256)):
         super().__init__()
         self.mlp = MLP(obs_dim, 1, hidden_sizes)
     
