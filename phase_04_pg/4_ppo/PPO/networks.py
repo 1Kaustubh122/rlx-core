@@ -30,7 +30,8 @@ class GaussianPolicyNet(nn.Module):
     
     def forward(self, obs):
         mean = self.mlp(obs)
-        std = torch.exp(self.log_std).expand_as(mean)
+        log_std = torch.clamp(self.log_std, -20, 2)
+        std = torch.exp(log_std).expand_as(mean)
         return mean, std
 
 class ValueNet(nn.Module):

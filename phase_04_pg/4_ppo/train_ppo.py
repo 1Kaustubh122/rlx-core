@@ -16,7 +16,7 @@ from PPO.ppo_agent import PPOAgent
 from PPO.buffer import TrajectoryBuffer
 from PPO.networks import GaussianPolicyNet, ValueNet
 
-domain, task = "manipulator", "bring_ball"
+domain, task = "walker", "walk"
 total_epochs = 10000
 steps_per_epoch = 1500  
 max_ep_len = 1000
@@ -178,7 +178,7 @@ def train(render: bool):
 
         print(f"[Epoch {epoch}] Steps: {total_env_steps} | AvgRet: {np.mean(eps_rews[-10:]):.2f} | Best: {best_reward:.2f}")
         print(episode_reward)
-        if (epoch+1) % 500 == 0 or epoch == total_epochs:
+        if (epoch+1) % 100 == 0 or epoch == total_epochs:
             torch.save({
                 'policy': policy.state_dict(),
                 'value_fn': value_fn.state_dict(),
