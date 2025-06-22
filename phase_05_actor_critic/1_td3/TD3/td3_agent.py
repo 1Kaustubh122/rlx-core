@@ -58,12 +58,19 @@ class TD3Agent:
         """
         Returns the action for env step, with noise
         """
-        obs = torch.as_tensor(obs, dtype=torch.float32, device=self.device)
-        action = self.actor(obs).cpu().data.numpy()
+        with torch.no_grad():                      
+            action = self.actor(obs).cpu()         
+
         if noise_std > 0:
-            action += noise_std * np.random.randn(self.act_dim)
-        
-        return np.clip(action, self.action_low, self.action_high)
+            action += noise_std * torch.randn_like(action)
+
+        action = torch.clamp(action,
+                            self.action_low.cpu(),
+                            self.action_high.cpu())
+
+        return action.detach().numpy().astype(np.float32)  
+
+      
 
     ## For Eval
     def act(self, obs):
@@ -73,7 +80,7 @@ class TD3Agent:
         obs = torch.as_tensor(obs, dtype=torch.float32, device=self.device)
         action = self.actor(obs).cpu().data.numpy()
         
-        return np.clip(action, self.action_low, self.action_high)
+        return torch.clamp(action, self.action_low, self.action_high)
 
     def train(self, replay_buffer : ReplayBuffer, batch_size=100):
         """
@@ -115,6 +122,7 @@ class TD3Agent:
         critic2_loss.backward()
         self.critic2_optimizer.step()
         
+        self.total_it += 1
         ##Delayed actor policy update
         if self.total_it % self.policy_delay == 0:
             actor_loss = -self.critic1(obs, self.actor(obs)).mean()
@@ -123,7 +131,6 @@ class TD3Agent:
             self.actor_optimizer.step()
             self.sync_target_networks()
             
-        self.total_it += 1
 
 
 
@@ -143,6 +150,18 @@ class TD3Agent:
                 targ_param.data.copy_(tau * param.data + (1 - tau) * targ_param.data)
 
     def save(self, path):
+        """
+        saves state_dict:
+        actor
+        actor_target
+        critic1
+        critic1_target
+        critic2
+        critic2_target
+        actor_optimizer
+        critic1_optimizer
+        critic2_optimizer
+        """
         torch.save({
             "actor" : self.actor.state_dict(),
             "actor_target" : self.actor_target.state_dict(),
@@ -156,6 +175,18 @@ class TD3Agent:
         }, path)
 
     def load(self, path):
+        """
+        load state_dict:
+        actor
+        actor_target
+        critic1
+        critic1_target
+        critic2
+        critic2_target
+        actor_optimizer
+        critic1_optimizer
+        critic2_optimizer
+        """
         chkpt = torch.load(path)
         
         self.actor.load_state_dict(chkpt["actor"])
