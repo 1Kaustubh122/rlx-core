@@ -1,3 +1,4 @@
+import cv2
 import numpy as np
 from dm_control import suite
 
@@ -27,3 +28,25 @@ class DMControlEnv:
         reward = np.array([ts.reward], dtype=np.float32)
         done = np.array([ts.last()], dtype=np.float32)
         return obs, reward, done
+    
+    def store_best_frame(self, frames):
+        """
+        returns frames, best_reward_gif, best_frames
+        """
+        rgb_frame = self.env.physics.render(height=420, width=420, camera_id=0)
+        bgr_frame = cv2.cvtColor(rgb_frame, cv2.COLOR_RGB2BGR)
+        bgr_frame = cv2.resize(
+            bgr_frame, 
+            (bgr_frame.shape[1] , bgr_frame.shape[0]), 
+            interpolation=cv2.INTER_LINEAR
+        )
+        frames.append(rgb_frame)
+        
+        
+        return bgr_frame, frames
+    
+    def render(self, bgr_frame):
+        cv2.imshow("training", bgr_frame)
+        cv2.waitKey(1)
+            
+            
