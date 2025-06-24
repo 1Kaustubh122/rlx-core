@@ -1,7 +1,8 @@
+from __future__ import annotations
 import torch
+import numpy as np
 import torch.nn as nn
 from typing import Tuple, List
-from __future__ import annotations
 
 
 LOG_STD_MIN = -20
@@ -12,7 +13,7 @@ def mlp(in_dim: int, hidden_sizes : Tuple[int, ...], out_dim: int, activation = 
     last_dim = in_dim
     
     for hl in hidden_sizes:
-        layers += [nn.Linear(last_dim, hl), activation]
+        layers += [nn.Linear(last_dim, hl), activation()]
         last_dim = hl
     
     layers.append(nn.Linear(last_dim, out_dim))
@@ -37,10 +38,12 @@ class GaussianPolicy(nn.Module):
         mu, std = self(state)
         dist = torch.distributions.Normal(mu, std)
         eps = dist.rsample()
-        a = torch.tanh(eps)
-        logp = dist.log_prob(eps) - torch.log1p(-a.pow(2) + 1e-6)
-        return a, logp.sum(-1, keepdim=True)
-    
+        pre_tanh = eps
+        a = torch.tanh(pre_tanh)
+        logp = dist.log_prob(pre_tanh).sum(-1, keepdim=True)
+        logp -= (2 * (np.log(2) - pre_tanh - nn.functional.softplus(-2 * pre_tanh))).sum(-1, keepdim=True)
+        return a, logp
+
     @torch.no_grad()
     def act(self, s, determinstic:bool = False):
         mu, std = self(s)

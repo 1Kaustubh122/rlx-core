@@ -34,11 +34,11 @@ class ReplayBuffer:
         
         idxs = np.random.randint(0, max_idx, size=batch_size)
         batch = (
-            torch.tensor(self.states[idxs],device=device),
-            torch.tensor(self.actions[idxs], device=device),
-            torch.tensor(self.rewards[idxs], device=device),
-            torch.tensor(self.next_states[idxs], device=device),
-            torch.tensor(self.dones[idxs], device=device),
+            torch.tensor(self.states[idxs],device=device, dtype=torch.float32),
+            torch.tensor(self.actions[idxs], device=device, dtype=torch.float32),
+            torch.tensor(self.rewards[idxs], device=device, dtype=torch.float32),
+            torch.tensor(self.next_states[idxs], device=device, dtype=torch.float32),
+            torch.tensor(self.dones[idxs], device=device, dtype=torch.float32),
         )
         
         return batch

@@ -46,10 +46,10 @@
 # # To Do:
 # # # 1. K armed bandit
 # # # 2. MDP
-# # 3. Monte Carlo
+# # # 3. Monte Carlo
 # #     # MC PRED
-# #     - MC CONTROL
-# # 4. Temporal Difference (TD)
+# #     # MC CONTROL
+# # # 4. Temporal Difference (TD)
 # # """
 
 
@@ -204,83 +204,91 @@
 
 
 
-import os
-import sys
-import numpy as np
-from collections import defaultdict
+# import os
+# import sys
+# import numpy as np
+# from collections import defaultdict
 
-os.makedirs("Monte_Carlo/Results", exist_ok=True)
-from utils.policy import PolicySelection
+# os.makedirs("Monte_Carlo/Results", exist_ok=True)
+# from utils.policy import PolicySelection
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+# sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-class MonteCarloControl:
-    def __init__(self, env, gamma = 0.9, epsilon= 0.9):
-        self.env = env                                          # Environment
-        policy_type = "e-greedy"
-        self.policy_selector = PolicySelection(action_space=self.env.action_space,policy_type=policy_type, epsilon=0.9)
-        self.gamma = gamma                                      # Discount Factor
-        self.returns = defaultdict(list)                        # Stores returns after averaging
-        self.C = defaultdict(float)                             # Stores sum of weighted returns
-        self.num_action = len(self.env.action_space)            # Number of possible action
-        self.Q = defaultdict(lambda: np.zeros(self.num_action)) # Stores Q Values
-        self.policy = defaultdict(lambda: np.random.randint(self.num_action))
+# class MonteCarloControl:
+#     def __init__(self, env, gamma = 0.9, epsilon= 0.9):
+#         self.env = env                                          # Environment
+#         policy_type = "e-greedy"
+#         self.policy_selector = PolicySelection(action_space=self.env.action_space,policy_type=policy_type, epsilon=0.9)
+#         self.gamma = gamma                                      # Discount Factor
+#         self.returns = defaultdict(list)                        # Stores returns after averaging
+#         self.C = defaultdict(float)                             # Stores sum of weighted returns
+#         self.num_action = len(self.env.action_space)            # Number of possible action
+#         self.Q = defaultdict(lambda: np.zeros(self.num_action)) # Stores Q Values
+#         self.policy = defaultdict(lambda: np.random.randint(self.num_action))
         
         
-    def action_selector(self, state, policy_type, Q_Value=None):
-        """ Code to Select Policy Type"""
-        return self.policy_selector.select_action(state, policy_type, Q_Value)
+#     def action_selector(self, state, policy_type, Q_Value=None):
+#         """ Code to Select Policy Type"""
+#         return self.policy_selector.select_action(state, policy_type, Q_Value)
         
             
-    def gen_episode(self, policy_type):
-        episode = []
-        state = self.env.reset()
+#     def gen_episode(self, policy_type):
+#         episode = []
+#         state = self.env.reset()
         
-        while True:
-            action = self.action_selector(state, policy_type, self.Q)
+#         while True:
+#             action = self.action_selector(state, policy_type, self.Q)
                                 
-            next_state, reward, done = self.env.step(self.env.action_space.index(action))
-            episode.append((state, action, reward))
-            state = next_state
+#             next_state, reward, done = self.env.step(self.env.action_space.index(action))
+#             episode.append((state, action, reward))
+#             state = next_state
             
-            if done:
-                break
+#             if done:
+#                 break
             
-        return episode
+#         return episode
     
-    def mc_control_exploring_start(self, num_episodes = 1000):
-        for _ in range(num_episodes):
+#     def mc_control_exploring_start(self, num_episodes = 1000):
+#         for _ in range(num_episodes):
             
-            ## Can update it to choose random action too #Default (0, 0)
-            # start = self.env.reset()            
-            # action = np.random.randint(self.num_action)
-            episode = self.gen_episode(policy_type="random")
-            G = 0
-            visited_state = set()
+#             ## Can update it to choose random action too #Default (0, 0)
+#             # start = self.env.reset()            
+#             # action = np.random.randint(self.num_action)
+#             episode = self.gen_episode(policy_type="random")
+#             G = 0
+#             visited_state = set()
 
-            for t in reversed(range(len(episode))):
-                state, action, reward = episode[t]
-                G = self.gamma * G + reward
-                action_idx = self.env.action_space.index(action)
+#             for t in reversed(range(len(episode))):
+#                 state, action, reward = episode[t]
+#                 G = self.gamma * G + reward
+#                 action_idx = self.env.action_space.index(action)
                 
-                if (state, action_idx) not in visited_state:
-                    visited_state.add((state, action_idx))
-                    self.returns[(state, action_idx)].append(G)
-                    self.Q[(state, action_idx)] = np.mean(self.returns[(state, action_idx)])
-                    self.policy[state] = np.argmax(self.Q[(state, action_idx)])
+#                 if (state, action_idx) not in visited_state:
+#                     visited_state.add((state, action_idx))
+#                     self.returns[(state, action_idx)].append(G)
+#                     self.Q[(state, action_idx)] = np.mean(self.returns[(state, action_idx)])
+#                     self.policy[state] = np.argmax(self.Q[(state, action_idx)])
             
-        return self.Q
+#         return self.Q
             
             
-    def print_q_policy(self):
-        grid_size = self.env.size
-        action_map = {0: '↑', 1: '↓', 2: '→', 3: '←'}
-        for row in range(grid_size):
-            row_str = []
-            for col in range(grid_size):
-                state = (row, col)
-                q_values = self.Q[state]
-                best_action = np.argmax(q_values)
-                row_str.append(action_map[best_action])
-            print(" | ".join(row_str))
-        print("-" * (4 * grid_size))
+#     def print_q_policy(self):
+#         grid_size = self.env.size
+#         action_map = {0: '↑', 1: '↓', 2: '→', 3: '←'}
+#         for row in range(grid_size):
+#             row_str = []
+#             for col in range(grid_size):
+#                 state = (row, col)
+#                 q_values = self.Q[state]
+#                 best_action = np.argmax(q_values)
+#                 row_str.append(action_map[best_action])
+#             print(" | ".join(row_str))
+#         print("-" * (4 * grid_size))
+
+
+import os, sys
+import importlib
+
+module_name = "phase_05_actor_critic.3_redq.REDQ"
+mod_ = importlib.import_module(module_name)
+print(mod_)

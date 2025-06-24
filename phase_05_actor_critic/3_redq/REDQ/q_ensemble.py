@@ -1,7 +1,7 @@
+from __future__ import annotations
 import torch
 import torch.nn as nn
-from typing import Tuple, List
-from __future__ import annotations
+from typing import Tuple
 
 from .policy import mlp
 
@@ -20,10 +20,15 @@ class QEnsemble(nn.Module):
         self.qs = nn.ModuleList([QNetwork(state_dim, act_dim, hidden) for _ in range(n)])
         self.n = n
         
+    def _one_q(self, idx, state, action):
+        return self.qs[idx](state, action) 
+        
     def forward_all(self, state, act):
-        return torch.cat([q(state, act) for q in self.qs], 1)
+        qs = [q(state, act) for q in self.qs]
+        qs = torch.cat(qs, dim=1)
+        return qs  
     
     @torch.no_grad()
     def target_min(self, state, action, indx):
-        vals = torch.cat([self.qs[i](state, action) for i in indx], 1)
-        return vals.min(1, keepdim=True)[0]
+        qs = torch.stack([self.qs[i](state, action) for i in indx], dim=1)
+        return qs.min(dim=1, keepdim=True)[0]

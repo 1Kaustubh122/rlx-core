@@ -1,9 +1,8 @@
+from __future__ import annotations
 import torch.nn as nn
 from typing import Tuple
-import torch.nn.functional as F
 from .q_ensemble import QEnsemble
 from dataclasses import dataclass
-from __future__ import annotations
 from .policy import GaussianPolicy
 import math, copy, torch, numpy as np
 
