@@ -1,0 +1,3 @@
+rollout_length: 5
+hidden_sizes: [256, 256]
+fyn_ensemble_size: 5

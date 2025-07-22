@@ -102,6 +102,8 @@ rlx-core/
 
 ```bash
 # Python deps
+conda create -n rlx-core python=3.10
+conda activate rlx-core
 pip install -r requirements.txt
 # Isaac Sim install—follow Nvidia’s [official docs](https://docs.nvidia.com/isaac/isaac-sim/latest/installation.html)
 ```

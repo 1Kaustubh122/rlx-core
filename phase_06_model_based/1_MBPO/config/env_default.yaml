@@ -1,0 +1,5 @@
+name: IsaacAssembly3Step
+obs_dim: 10 ## TO do: add actual dim
+act_dim: 10 ## TO do: add actual dim
+max_episode_steps: 200
+sim_device: cuda:0

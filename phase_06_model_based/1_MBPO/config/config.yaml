@@ -1,0 +1,7 @@
+defaults:
+  - env: env_default
+  - model: model_default
+  - train: train_default
+  - _self_
+
+seed = 0
