@@ -10,3 +10,5 @@ wandb==0.21.0
 lark==1.2.2
 ruff==0.4.4
 pyright==1.1.365
+torch==2.7.0 
+torchvision==0.22.0
