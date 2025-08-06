@@ -1,12 +1,12 @@
 # rlx-core
 
-> Modular, production-ready Reinforcement Learning stack for robotics and factory automation. Built to scale from research to real factory floors—no shortcuts, no toy code, full control.
+> Building a Modular, production-eady Reinforcement Learning stack for robotics and factory automation. Built to scale from research to real factory floors— no toy problem.
 
 ---
 
 ## 🧠 Overview
 
-`rlx-core` is my ground-up, multi-phase RL framework for industrial robotics. The repo is split into clear phases—from basic RL to world models and sim2real pipelines.  
+`rlx-core` is my ground-up, multi-phase RL framework for industrial robotics. The repo is split into clear phases-from basic RL to world models and sim2real pipelines.  
 Phases 1–5 are foundational, focused on speed and learning. Phase 6 onward: everything gets rebuilt for **production and deployment** at real-world scale.
 
 ---
@@ -19,12 +19,12 @@ Phases 1–5 are foundational, focused on speed and learning. Phase 6 onward: ev
   - Good enough for getting RL right, not pretending to be "enterprise" before it matters.
 
 - **Phase 6+ (Current and Future):**  
-  - **JAX (Flax/Haiku/Optax):** State-of-the-art RL/ML stack for high performance and composability.
+  - **JAX (Flax/Optax):** State-of-the-art RL/ML stack for high performance and composability.
   - **Hydra:** Configs and ablations—everything is controlled and reproducible.
   - **Weights & Biases:** Experiment tracking, metrics, artifacts—no more black-box runs.
   - **Isaac Sim (+ Isaac Lab for rapid prototyping):** Realistic factory/cell/robot simulation, built for sim2real.
   - **ONNX + C++/ONNX Runtime:** Deployment outside Python; real-time inference for robot controllers and factory systems.
-  - **CI/CD, Docker, Regression Tests:** Everything tested and reproducible from the start.
+  - **Docker:** Everything tested and reproducible from the start.
 
 ---
 
@@ -35,10 +35,8 @@ Phases 1–5 are foundational, focused on speed and learning. Phase 6 onward: ev
 - Not productionized, not modular, not suitable for real-world deployment as-is.
 
 **Phase 6 onward:**  
+- Core stack, built on custom env, using OpenUSD
 - Full-stack, modular, ablation-ready, deployment-focused.  
-- If you want to see the difference, compare any agent/phase before and after.
-
-*This is deliberate. I don’t waste time rewriting history—my focus is on forward progress and system-level execution. No backfilling, no fake consistency.*
 
 ---
 
@@ -53,7 +51,7 @@ rlx-core/
 ├── phase_04_pg/                     # REINFORCE, A2C, TRPO, PPO
 ├── phase_05_actor_critic/           # TD3, SAC, REDQ
 *Will be added soon from here*
-├── phase_06_model_based/            # Dyna-Q FA, MBPO, PETS, PlaNet
+├── phase_06_model_based/            # MBPO, PETS, PlaNet
 ├── phase_07_dreamer/                # DreamerV1, V2, V3
 ├── phase_08_world_models/           # MuZero, SimPLe
 ├── phase_09_meta_rl/                # MAML, RL²
@@ -68,21 +66,16 @@ rlx-core/
 ├── phase_18_multi_task_transfer/    # Multi-task, transfer architectures
 ├── phase_19_safe_risk_sensitive_rl/ # Constrained RL, risk-sensitive PPO/SAC
 │
-├── core/                            # Agent, env, buffer, wrappers, utils
-├── configs/                         # Hydra configs for all ablations/experiments
-├── scripts/                         # Training, evaluation, deployment scripts
-├── deploy/                          # ONNX models, C++ inference, Dockerfiles
 ├── docs/                            # Papers, diagrams, design notes
 ```
 ---
 
 ## 🚀 Features
 *Will be added soon*
-* **Everything modular:** Agents, envs, replay buffers, loss functions—swap and ablate with configs, not code hacks.
+* **Everything modular:** Agents, envs, replay buffers, loss functions—swap and ablate with configs.
 * **Production logging:** Every run, config, and artifact is logged and tracked (W\&B).
-* **Isaac Sim native:** Ready for direct deployment in Nvidia’s industrial sim pipeline. ROS2 bridgeable, real-world tasks supported.
-* **ONNX export + C++ runtime:** All policies exportable for deployment in real systems—no Python bottleneck, no excuses.
-* **CI/CD enforced:** Every module and deployment step is tested—if it breaks, the pipeline fails.
+* **Isaac Sim native:** Ready for direct deployment in Nvidia’s industrial sim pipeline. Real-world tasks supported.
+* **ONNX export + C++ runtime:** All policies exportable for deployment in real systems—no Python bottleneck.
 * **Sim2Real Ready:** Sim environments support domain randomization, sensor/actuator noise, and policy transfer.
 
 ---
@@ -105,7 +98,7 @@ rlx-core/
 conda create -n rlx-core python=3.10
 conda activate rlx-core
 pip install -r requirements.txt
-# Isaac Sim install—follow Nvidia’s [official docs](https://docs.nvidia.com/isaac/isaac-sim/latest/installation.html)
+# Isaac Sim install—follow Nvidia’s [official docs](https://docs.isaacsim.omniverse.nvidia.com/4.5.0/installation/download.html)
 ```
 
 ### 3. **Training / Experiments**
@@ -128,8 +121,6 @@ pip install -r requirements.txt
 ## 📚 Documentation
 *Will be added soon*
 * All canonical papers (PPO, DreamerV3, MBPO, MuZero, etc.) in `docs/papers/`
-* Architecture diagrams and execution flows in `docs/diagrams/`
-* Design notes and ablation results in `docs/`
 
 ---
 
@@ -138,9 +129,9 @@ pip install -r requirements.txt
 * **Phases 1–5:** Locked. No further upgrades or refactoring.
 * **Phase 6+:** Ongoing.
 
-  * Model-based RL: MBPO, PETS, PlaNet, Dreamer (JAX).
+  * Model-based RL: MBPO, PETS, PlaNet, Dreamer.
   * Full integration with Isaac Sim and real-world deployment pipeline.
-  * Sim2real, policy export, ONNX/C++ integration, ablation sweeps, and CI/CD coverage.
+  * Sim2real, policy export, ONNX/C++ integration, ablation sweeps, and Docker ready.
 
 ---
 
@@ -158,4 +149,3 @@ MIT License. Free for any use with attribution. Commercial support possible—co
 
 **I build RL for real robots and factories.
 If you’re tired of toy benchmarks and academic bloat, start here.**
-
