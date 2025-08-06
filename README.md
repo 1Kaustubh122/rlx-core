@@ -109,7 +109,7 @@ pip install -r requirements.txt
   ```bash
   python scripts/train.py --config-name=mbpo.yaml
   ```
-* W\&B project link: *Will be added soob*
+* W\&B project link: *Will be added soon*
 
 ### 4. **Deployment**
 *Will be added soon*
