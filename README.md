@@ -1,151 +1,167 @@
-# rlx-core
+# Reinforcement Learning Toolkit (RLTK)
 
-> Building a Modular, production-eady Reinforcement Learning stack for robotics and factory automation. Built to scale from research to real factory floors— no toy problem.
-
----
-
-## 🧠 Overview
-
-`rlx-core` is my ground-up, multi-phase RL framework for industrial robotics. The repo is split into clear phases-from basic RL to world models and sim2real pipelines.  
-Phases 1–5 are foundational, focused on speed and learning. Phase 6 onward: everything gets rebuilt for **production and deployment** at real-world scale.
+**Production-grade RL for industrial autonomy. UNDER ACTIVE DEVELOPMENT**
+Train in **JAX/Flax/Optax**, export to **ONNX**, run **deterministically in C++20** with safety guards. Designed to plug into real robots and machines alongside classical control and sensor-fusion stacks.
 
 ---
 
-## ⚡️ Tech Stack
+## Why RLTK
 
-- **Phases 1–5:**  
-  - Custom GridWorlds, DeepMind Control Suite, PyTorch.  
-  - Fast prototyping, no heavy frameworks.  
-  - Good enough for getting RL right, not pretending to be "enterprise" before it matters.
+Most RL repos stop at toy sims. RLTK is built for **factory floors, yards, ports, mines, and agri**:
 
-- **Phase 6+ (Current and Future):**  
-  - **JAX (Flax/Optax):** State-of-the-art RL/ML stack for high performance and composability.
-  - **Hydra:** Configs and ablations—everything is controlled and reproducible.
-  - **Weights & Biases:** Experiment tracking, metrics, artifacts—no more black-box runs.
-  - **Isaac Sim (+ Isaac Lab for rapid prototyping):** Realistic factory/cell/robot simulation, built for sim2real.
-  - **ONNX + C++/ONNX Runtime:** Deployment outside Python; real-time inference for robot controllers and factory systems.
-  - **Docker:** Everything tested and reproducible from the start.
+* **IO-agnostic contract:** numeric observations in, numeric actions out.
+* **Deterministic C++ runtime:** fixed tick, no heap after init, WCET budgets.
+* **Safety at runtime:** action clamps, rate/jerk limits, novelty/timing monitors, instant fallback signals.
+* **Portable deployment:** ROS2, industrial PCs, and—with proper optimization—PLC/embedded integration via C ABI.
+* **Auditability:** ablation configs, seeds, metrics, artifacts, ONNX + `metadata.json` contract.
 
 ---
 
-## ⚠️ Stack Transition Notice
+## Architecture
 
-**Phases 1–5:**  
-- Legacy stack. Custom environments and PyTorch for rapid learning and prototyping.
-- Not productionized, not modular, not suitable for real-world deployment as-is.
+**Training (Python/JAX)** -> **Export (ONNX + metadata)** -> **Runtime (C++20)** -> **Adapters (ROS2/PLC/embedded)**
 
-**Phase 6 onward:**  
-- Core stack, built on custom env, using OpenUSD
-- Full-stack, modular, ablation-ready, deployment-focused.  
+* **Training stack:** JAX/Flax/Optax + Hydra configs + W\&B tracking.
+* **Export layer:** frozen params -> ONNX, with strict op set and numerics parity tests.
+* **Runtime:** lightweight C++20 inference loop with safety hooks and deterministic scheduling.
+* **Operational modes:** Shadow / Residual / Primary / Cooperative.
+* **Integration:** thin adapters feed obs/actions to ICTK/SFTK pipelines.
 
 ---
 
-## 🗂️ Repository Structure
+## Capabilities
 
-```text
-rlx-core/
-│
-├── phase_01_tabular/                # Bandits, MDP, MC, TD, N_Step, Planning
-├── phase_02_function_approx/        # NN_Q_learningm, NN_SARSA, NN_N_Step_Q
-├── phase_03_dqn/                    # Vanilla DQN, Double DQN, Dueling DQN, PER DQN, Rainbow DQN
-├── phase_04_pg/                     # REINFORCE, A2C, TRPO, PPO
-├── phase_05_actor_critic/           # TD3, SAC, REDQ
-*Will be added soon from here*
-├── phase_06_model_based/            # MBPO, PETS, PlaNet
-├── phase_07_dreamer/                # DreamerV1, V2, V3
-├── phase_08_world_models/           # MuZero, SimPLe
-├── phase_09_meta_rl/                # MAML, RL²
-├── phase_10_hierarchical_rl/        # Options, Feudal Networks
-├── phase_11_offline_rl/             # BC, DAgger, CQL, BRAC
-├── phase_12_multi_agent_rl/         # I-DQN, QMIX, MADDPG
-├── phase_13_exploration/            # ICM, RND, NGU, Go-Explore
-├── phase_14_inverse_rl_imitation/   # GAIL, AIRL, SQIL
-├── phase_15_transformer_rl/         # Decision Transformer, Gato, Trajectory Transformer
-├── phase_16_robust_sim2real_rl/     # Domain Randomization, EPOpt, Robust Adversarial RL
-├── phase_17_real_time_rl/           # Real-time policy inference/deployment
-├── phase_18_multi_task_transfer/    # Multi-task, transfer architectures
-├── phase_19_safe_risk_sensitive_rl/ # Constrained RL, risk-sensitive PPO/SAC
-│
-├── docs/                            # Papers, diagrams, design notes
+* **Agents (JAX):** modular policies, losses, buffers, model-based rollouts.
+* **Experiment engine:** Hydra configs, grid/sweep runners, seeded determinism, W\&B artifacts.
+* **Data & logging:** episode stores, KPI reporters, exportable artifacts.
+* **Export & parity:** ONNX export, Python↔C++ inference parity tests (tolerance configurable).
+* **Runtime safety:** clamps, rate/jerk limits, novelty/timing monitors, fallback trip signals.
+* **Modes:**
+
+  * **Shadow:** observe only, log counterfactual actions.
+  * **Residual:** add bounded residual on top of classical controller.
+  * **Primary:** direct control within safety envelope.
+  * **Cooperative:** blend with classical policy via scheduler.
+
+---
+
+## Algorithms & Roadmap (Phases)
+
+**Legacy baseline (complete/archival):**
+
+1. **Tabular:** Bandits, MDP planning, MC, TD, n-step.
+2. **Function Approximation:** NN-Q, NN-SARSA, NN n-step Q.
+3. **DQN family:** Vanilla, Double, Dueling, PER, Rainbow.
+4. **Policy Gradients:** REINFORCE, A2C, TRPO, PPO.
+5. **Actor-Critic:** TD3, SAC, REDQ.
+#### *Phase 6+ (current and forward, production-grade):*
+6. **Model-Based RL:** MBPO, PETS, PlaNet.
+7. **World Models:** Dreamer (V1/V2/V3).
+8. **Latent/World-Model Methods:** MuZero, SimPLe.
+9. **Meta-RL:** MAML, RL².
+10. **Hierarchical RL:** Options, Feudal variants.
+11. **Offline/IL:** BC, DAgger, CQL, BRAC.
+12. **Multi-Agent:** I-DQN, QMIX, MADDPG.
+13. **Exploration:** ICM, RND, NGU, Go-Explore.
+14. **Inverse/Imitation:** GAIL, AIRL, SQIL.
+15. **Transformer RL:** Decision Transformer, Trajectory Transformer, Gato-style.
+16. **Robust Sim2Real:** Domain Randomization, EPOpt, Adversarial RL.
+17. **Real-Time RL:** latency-bounded inference, scheduler integration.
+18. **Multi-Task/Transfer:** shared backbones, adapters, fine-tune heads.
+19. **Safe/Risk-Sensitive:** constrained RL, risk-aware PPO/SAC.
+
+> Phases 1–5 remain as **archival references**. Phase 6+ is the **active, production-grade** track.
+
+---
+
+## Operational KPIs (gates)
+
+A model is **deployable** only if it meets:
+
+* **Parity:** Python vs C++ outputs match within `≤1e-5` L∞ for fixed test cases.
+* **Latency:** p95 inference `≤2 ms` on reference hardware.
+* **Safety:** no observed clamp/rate violations in validation suites; novelty alarms within budget.
+* **Stability:** zero runtime allocations after init; no missed ticks at target Hz.
+* **KPI uplift:** beats classical baseline on scenario KPIs (e.g., autonomy ratio, lateral RMS, stop distance, disengagements/hour, throughput delta).
+
+---
+
+## Deployment Model Contract
+
+Artifacts per trained policy:
+
+* `model.onnx` — fixed opset, static shapes preferred.
+* `metadata.json` — minimal schema:
+
+```json
+{
+  "abi_version": "rltk-v1",
+  "obs_dim": 24,
+  "act_dim": 4,
+  "obs_norm": {"mean": [...], "std": [...]},
+  "act_bounds": {"min": [...], "max": [...]},
+  "tick_hz": 100.0,
+  "preprocess": ["clip:obs:-10,10", "scale:act:-1,1"],
+  "training_commit": "abcdef1234",
+  "onnx_sha256": "…",
+  "kpi_ref": "reports/run_2025-08-28.json",
+  "license": "MIT"
+}
 ```
----
 
-## 🚀 Features
-*Will be added soon*
-* **Everything modular:** Agents, envs, replay buffers, loss functions—swap and ablate with configs.
-* **Production logging:** Every run, config, and artifact is logged and tracked (W\&B).
-* **Isaac Sim native:** Ready for direct deployment in Nvidia’s industrial sim pipeline. Real-world tasks supported.
-* **ONNX export + C++ runtime:** All policies exportable for deployment in real systems—no Python bottleneck.
-* **Sim2Real Ready:** Sim environments support domain randomization, sensor/actuator noise, and policy transfer.
+**Runtime guarantees:**
 
----
+* Fixed-step scheduler at `tick_hz`, bounded WCET.
+* No heap allocs after init; pre-allocated workspaces.
+* Safety hooks: clamp -> rate/jerk -> novelty -> fallback signal cascade.
 
-## 🏁 Getting Started
-
-### 1. **Requirements**
-
-* Python 3.9+
-* JAX, Flax, Optax, Hydra, W\&B (see `requirements.txt`)
-* Isaac Sim (see Nvidia docs)
-* ONNX, onnxruntime (Python + C++ for deployment)
-* Docker (for containerized deployment)
-* GPU (strongly recommended for Isaac Sim and JAX RL)
-
-### 2. **Setup**
-
-```bash
-# Python deps
-conda create -n rlx-core python=3.10
-conda activate rlx-core
-pip install -r requirements.txt
-# Isaac Sim install—follow Nvidia’s [official docs](https://docs.isaacsim.omniverse.nvidia.com/4.5.0/installation/download.html)
-```
-
-### 3. **Training / Experiments**
-*Will be added soon*
-* See `scripts/` for launchers and ablation runners.
-* Example:
-
-  ```bash
-  python scripts/train.py --config-name=mbpo.yaml
-  ```
-* W\&B project link: *Will be added soon*
-
-### 4. **Deployment**
-*Will be added soon*
-* See `deploy/` for ONNX models and C++ inference code.
-* Real-world deployment via Docker containers and ONNX Runtime API.
+**PLC/embedded note:** deployment is **inference-only**. With small nets and static shapes, ONNX or generated kernels can meet real-time budgets on industrial PCs and many modern controllers. Integration via C ABI.
 
 ---
 
-## 📚 Documentation
-*Will be added soon*
-* All canonical papers (PPO, DreamerV3, MBPO, MuZero, etc.) in `docs/papers/`
+## Tech Stack
+
+* **Train:** Python 3.10+, JAX/Flax/Optax, Hydra, W\&B.
+* **Sim:** Isaac Sim / Isaac Lab for industrial scenes.
+* **Export:** ONNX.
+* **Runtime:** C++20, ONNX Runtime, C ABI for integration.
+* **Adapters:** ROS2 nodes; PLC/embedded bridges where applicable.
 
 ---
 
-## 📢 Roadmap
 
-* **Phases 1–5:** Locked. No further upgrades or refactoring.
-* **Phase 6+:** Ongoing.
 
-  * Model-based RL: MBPO, PETS, PlaNet, Dreamer.
-  * Full integration with Isaac Sim and real-world deployment pipeline.
-  * Sim2real, policy export, ONNX/C++ integration, ablation sweeps, and Docker ready.
+## Safety & Determinism (Runtime)
 
----
-
-## 👷 Contributing
-
-This repo is solo-built and tightly controlled—pull requests only considered for non-trivial improvements or major bugfixes. If you want to use/extend, fork away.
+* **Init:** load ONNX, allocate all buffers, bind threads, warm up.
+* **Tick:** acquire obs -> normalize -> infer -> clamp -> rate/jerk limit -> emit action.
+* **Monitors:** deadline misses, novelty scores, out-of-range inputs.
+* **Fallback:** on violation, raise signal for ICTK controller takeover.
+* **WCET harness:** included tests run warm/cold cycles and write CSVs.
 
 ---
 
-## 📜 License
+## Status & Milestones
 
-MIT License. Free for any use with attribution. Commercial support possible—contact for details.
+* **Mid Sept:** Base runtime + export + parity + safety hooks ready.
+* **Sept 30:** On-vehicle validation (golf cart) with Shadow/Residual modes.
 
 ---
 
-**I build RL for real robots and factories.
-If you’re tired of toy benchmarks and academic bloat, start here.**
+## Contributing
+
+Focused roadmap. PRs welcome for: determinism, export tooling, runtime safety, adapters, tests. Follow `CONTRIBUTING.md`.
+
+---
+
+## License
+
+MIT. See [LICENSE](LICENSE).
+
+---
+
+## Acknowledgments
+
+Built to operate alongside [**ICTK**](https://github.com/1Kaustubh122/industrial-control-toolkit) and [**SFTK**](https://github.com/1Kaustubh122/sensor-fusion-toolkit)  with thin ROS2/PLC adapters for end-to-end autonomy.
+
+---
